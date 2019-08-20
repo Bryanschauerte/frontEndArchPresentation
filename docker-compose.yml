@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+    client:
+        container_name: client
+        build:
+            context: client
+            dockerfile: Dockerfile
+        volumes:
+            - "./client:/app"
+            - "./client/app/node_modules"
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=development
+
+    node-app:
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        depends_on:
+            - mysql-db
+        ports:
+            - "6500:6500"
+        expose:
+            - "6500"
+        volumes:
+            - ./server:/opt/app:delegated
+            # bind-mounting these two files in will let you add packages during development without rebuilding
+            # for example, to add bower to your app while developing, just install it inside the container
+            # and then nodemon will restart. Your changes will last until you "docker-compose down" and will
+            # be saved on host for next build
+            # docker-compose exec node npm install --save bower
+            - ./server/package.json:/opt/package.json
+            - ./server/package-lock.json:/opt/package-lock.json
+            # this is a workaround to prevent host node_modules from accidently getting mounted in container
+            # in case you want to use node/npm both outside container for test/lint etc. and also inside container
+            # this will overwrite the default node_modules dir in container so it won't conflict with our
+            # /opt/node_modules location. Thanks to PR from @brnluiz
+            - notused:/opt/app/node_modules
+
+    mysql-db:
+        image: mysql/mysql-server:5.7
+        restart: always
+        environment:
+            MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+            MYSQL_USER: 'user'
+      # You can use whatever password you like
+            MYSQL_PASSWORD: 'password'
+      # Password for root access
+            MYSQL_ROOT_PASSWORD: 'password'
+        ports:
+            - "3306:3306"
+        expose:
+            - "3306"
+        volumes:
+            # - db_data:/var/lib/mysql
+            # olumes:
+    # Use this option to persist the MySQL DBs in a shared volume.
+            - ./db_data:/var/lib/mysql:rw,delegated
+    # Use this option to persist the MySQL DBs in a data volume.
+    # - db_data:/var/lib/mysql
+volumes:
+    db_data:
+    notused:
