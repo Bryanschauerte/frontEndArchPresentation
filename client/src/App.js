@@ -10,13 +10,23 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import createStore from "./store";
 import user from "./engine/user";
 import Login from "./views/login/Login";
+import HOCExComponent from "./components/HOCExComponent";
 
 const styles = () => {};
+
+// const SimpleBtn = ({ clickHandler, label }) => (
+// 	<Button onClick={clickHandler}>{label}</Button>
+// );
+const Bottles = ({ count }) => <h1>{count} of soda</h1>;
+const Problems = ({ count }) => <h1>{count} Problems</h1>;
 
 function Tester({ working, changeWorking }) {
 	return (
 		<div>
 			{working}
+			{HOCExComponent(Bottles)}
+			{HOCExComponent(Problems)}
+
 			<Button
 				onClick={() => changeWorking("working SOOO hard")}
 				color="primary"
