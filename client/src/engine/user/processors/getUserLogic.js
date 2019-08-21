@@ -16,24 +16,5 @@ export const getUserLogic = createLogic({
 		const { username: user } = action.payload;
 
 		return http
-			.post("/design-view/entity-user/queryv2", { logon_name: user })
-			.pipe(
-				map(http.getBody),
-				map(resp => resp.data[0]),
-				tap(entity => {
-					if (entity.entity_user_guid) {
-						storage.setUserId(entity.entity_user_guid);
-					}
-				}),
-				map(entityData => ({
-					username: entityData.entity_name,
-					firstName: entityData.first_name,
-					lastName: entityData.last_name,
-					thumbnailPhoto: entityData.thumbnail_photo,
-					entityUserGuid: entityData.entity_user_guid,
-					entityGuid: entityData.entity_guid,
-					email: entityData.contact_value_text
-				}))
-			);
 	}
 });
